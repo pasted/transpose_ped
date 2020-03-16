@@ -19,13 +19,15 @@ class Alleles(object):
 
 
 class Individual(object):
-    def __init__(self, row):
+    def __init__(self, row, storage):
         self.family_id = row[1]
         self.individual_id = row[2]
         self.father_id = row[3]
         self.mother_id = row[4]
         self.sex = row[5]
         self.status = row[6]
+
+        #marker_names = storage.snp_store
         self.alleles = []
 
 
@@ -36,27 +38,21 @@ class Storage(object):
         self.snp_store = []
         self.ped_store = []
 
-    def phenoscanner_to_bolt(self, bolt_record):
-        """
-      Links Phenoscanner results to the relevant Bolt-LMM object
-      """
-        filtered_list = [ps for ps in self.ps_store if
-                         ((ps.chromosome == bolt_record.chromosome) and (ps.coordinate == bolt_record.coordinate))]
-        print(filtered_list)
-
 
 class MapParser(object):
     """
    MAP file parser
     """
 
-    def read_bolt(self, file_path, storage):
+    def read_map(self, file_path, storage):
         """
       Reads in MAP text file, with SNP information
       Args:
          file_path (str): Given filepath to MAP file
       Returns:
          storage : A Storage object with a List of MAP file rows
+         :param file_path:
+         :param storage:
         """
 
         with open(file_path) as map_file:
@@ -64,6 +60,30 @@ class MapParser(object):
             for row in tsv_reader:
                 this_snp = Snp(row)
                 storage.snp_store.append(this_snp)
+        return storage
+
+
+class PedParser(object):
+    """
+   PED file parser
+    """
+
+    def read_ped(self, file_path, storage):
+        """
+      Reads in MAP text file, with SNP information
+      Args:
+         file_path (str): Given filepath to MAP file
+      Returns:
+         storage : A Storage object with a List of MAP file rows
+         :param file_path:
+         :param storage:
+        """
+
+        with open(file_path) as ped_file:
+            tsv_reader = csv.DictReader(ped_file, delimiter="\t")
+            for row in tsv_reader:
+                this_individual = Individual(row, storage)
+                storage.ped_store.append(this_individual)
         return storage
 
 
@@ -80,8 +100,19 @@ class Main(object):
                             help='PED file to be merged and transposed', required=True)
         parser.add_argument('-fp', '--fam_prefix', dest='fam_prefix',
                             help='Family prefix')
+        parser.add_argument('-s', '--status_change', dest='status_change',
+                            help='Change individual status')
+        parser.add_argument('-sx', '--status_change_except', dest='status_change_except',
+                            help='Change status except these individual ids')
         parser.add_argument('--test')
         args = parser.parse_args()
+        map_reader = MapParser()
+        ped_reader = PedParser()
+        storage = Storage()
+
+        map_reader.read_map(args.map_path, storage)
+
+        ped_reader.read_ped(args.ped_path, storage)
 
 
 if __name__ == '__main__':
