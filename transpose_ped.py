@@ -3,7 +3,6 @@ Main entry point for the transpose_ped parser.
 """
 import argparse
 import csv
-import itertools
 from collections import deque
 
 
@@ -50,10 +49,13 @@ class Storage(object):
 
     def change_status(self):
         for p in self.ped_store:
-            if int(p.individual_id) != 27 & int(p.individual_id) % 2 == 0:
+            #print(str(p.individual_id) + " : " + str(p.status))
+            if (int(p.individual_id) != 27) & (int(p.individual_id) % 2 == 0):
                 p.status = 2
-            elif int(p.individual_id) != 27 & int(p.individual_id) % 2 != 0:
+            elif (int(p.individual_id) != 27) & (int(p.individual_id) % 2 > 0):
                 p.status = 1
+            else:
+                print("Not changing status for individual_id: " + str(p.individual_id) )
 
     def transpose(self, filename):
         with open(filename, "w", newline='') as outfile:
