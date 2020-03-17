@@ -49,7 +49,6 @@ class Storage(object):
 
     def change_status(self):
         for p in self.ped_store:
-            #print(str(p.individual_id) + " : " + str(p.status))
             if (int(p.individual_id) != 27) & (int(p.individual_id) % 2 == 0):
                 p.status = 2
             elif (int(p.individual_id) != 27) & (int(p.individual_id) % 2 > 0):
@@ -130,9 +129,9 @@ class Main(object):
 
     def __init__(self):
         parser = argparse.ArgumentParser(description='Transpose PED files')
-        parser.add_argument('-m', '--map_path', dest='map_path',
+        parser.add_argument('-m', '--map_path', dest='map_path', default="test/test.map",
                             help='MAP file to be parsed')
-        parser.add_argument('-p', '--ped_path', dest='ped_path',
+        parser.add_argument('-p', '--ped_path', dest='ped_path', default="test/test.ped",
                             help='PED file to be merged and transposed')
         parser.add_argument('-fp', '--fam_prefix', dest='fam_prefix',
                             help='Family prefix')
@@ -142,8 +141,8 @@ class Main(object):
                             help='Change status except these individual ids')
         parser.add_argument('--test')
         args = parser.parse_args()
-        args.map_path = "test/test.map"
-        args.ped_path = "test/test.ped"
+        #args.map_path = "test/test.map"
+        #args.ped_path = "test/test.ped"
         map_reader = MapParser()
         ped_reader = PedParser()
         storage = Storage()
